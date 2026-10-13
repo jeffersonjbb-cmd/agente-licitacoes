@@ -74,13 +74,15 @@ export async function POST(request: NextRequest) {
     // Gerar análise padrão
     const analise = gerarAnalise(resultado, segmento, budgetMax);
     // Enviar notificação ao Slack
-await fetch(SLACK_WEBHOOK_URL, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    text: `🎯 NOVA BUSCA - ${segmento}\n📊 Encontradas: ${licitacoes.length} licitações\n💰 Faixa: R$ ${budgetMin} a R$ ${budgetMax}`
-  })
-});
+if (SLACK_WEBHOOK_URL) {
+  fetch(SLACK_WEBHOOK_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      text: `🎯 NOVA BUSCA - ${segmento}\n📊 Encontradas: ${resultado.length} licitações\n💰 Faixa: R$ ${budgetMin} a R$ ${budgetMax}`
+    })
+  }).catch(err => console.error("Slack error:", err));
+}
 
     return NextResponse.json({
       licitacoes: resultado,
